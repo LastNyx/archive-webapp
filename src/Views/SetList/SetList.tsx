@@ -70,11 +70,17 @@ const SetList = () => {
   const [isPending, setIsPending] = useState(true)
   const [queryParams, setQueryParams] = useState({withSets: true, search: ''})
 
+  const [pagination, setPagination] = useState<TablePaginationConfig>({
+    current: 1,
+    pageSize: 10,
+  });
+
   const fetchData = (id:number, queryParams:QueryParams) => {
     setIsPending(true)
     axiosArtist(id,queryParams)
       .then((res) => {
           setArtist(res.data.data)
+          setPagination({total: res.data.total, current: res.data.current_page, pageSize: res.data.per_page})
       })
       .catch((err) => {
         openNotification('error', err);
@@ -144,7 +150,6 @@ const SetList = () => {
   useEffect(() => {
     if(cookies.token){
       setLoggedIn(true);
-      setShowAction(true);
     }else{
       setLoggedIn(false);
       setShowAction(false);
@@ -157,8 +162,13 @@ const SetList = () => {
     setShowModalEdit(true);
   }
 
-  const handleTableChange = (newPagination: TablePaginationConfig, sorter: SorterResult<DataType>,) => {
-    console.log(newPagination, sorter);
+  const handleTableChange = (
+    newPagination: TablePaginationConfig,
+  ) => {
+    fetchData(Number(postId),{
+      ...queryParams,
+      page: newPagination.current,
+    });
   };
 
   const columns: ColumnsType<DataType> = [
@@ -250,7 +260,8 @@ const SetList = () => {
             loading = {isPending} 
             columns={columns} 
             dataSource={artist}
-            onChange={handleTableChange} 
+            pagination={pagination}
+            onChange={handleTableChange}
             rowKey="id" />
         </Col>
       </Row>

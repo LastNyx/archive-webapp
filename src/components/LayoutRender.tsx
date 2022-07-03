@@ -18,7 +18,6 @@ const LayoutRender: React.FC = () => {
         style={{
           padding: '0 50px',
           overflow: 'initial',
-          height: '100vh'
         }}
       >
         <Card className="mt-3">

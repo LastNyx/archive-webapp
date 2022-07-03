@@ -9,8 +9,8 @@ import {
   Breadcrumb,
   Switch,
 } from 'antd';
-import type { ColumnsType} from 'antd/lib/table';
-import type { SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
+import type { ColumnsType, TablePaginationConfig} from 'antd/lib/table';
+import type { SorterResult } from 'antd/lib/table/interface';
 import React, { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { Link } from 'react-router-dom'
@@ -35,8 +35,14 @@ interface DataType {
   id: number;
   name: string;
   setlists_count: number;
-  updated_at: Date;
+  setlists: setList[];
 };
+
+interface setList {
+  id: number;
+  title: string;
+  artists_id: number;
+}
 
 const openNotification = (type: NotificationType, message: string) => {
   notification[type]({
@@ -63,11 +69,17 @@ const Home: React.FC = () => {
   const [isPending, setIsPending] = useState(true)
   const [queryParams, setQueryParams] = useState({search: ''})
 
+  const [pagination, setPagination] = useState<TablePaginationConfig>({
+    current: 1,
+    pageSize: 10,
+  });
+
   const fetchData = (queryParams:QueryParams) => {
     setIsPending(true)
     axiosArtists(queryParams)
       .then((res) => {
           setArtists(res.data.data)
+          setPagination({total: res.data.total, current: res.data.current_page, pageSize: res.data.per_page})
       })
       .catch((err) => {
         openNotification('error', err);
@@ -139,14 +151,9 @@ const Home: React.FC = () => {
     setShowModalEdit(true);
   }
 
-  const handleTableChange = (newPagination: TablePaginationConfig, sorter: SorterResult<DataType>,) => {
-    console.log(newPagination, sorter);
-  };
-
   useEffect(() => {
     if(cookies.token){
       setLoggedIn(true);
-      setShowAction(true);
     }else{
       setLoggedIn(false);
       setShowAction(false);
@@ -172,8 +179,8 @@ const Home: React.FC = () => {
     },
     {
       title: 'Last Updated',
-      dataIndex: 'updated_at',
-      render: updated_at => <span>{DateTime(updated_at)}</span>
+      dataIndex: ['setlists', '0', 'updated_at'],
+      render: (setlists) => setlists? <span>{DateTime(setlists)}</span>: <span>-</span>,
     },
     showAction ? {
       title: 'Action',
@@ -200,6 +207,14 @@ const Home: React.FC = () => {
       ),
     } : { width: 0, },
   ];
+
+  const handleTableChange = (
+    newPagination: TablePaginationConfig,
+  ) => {
+    fetchData({
+      page: newPagination.current,
+    });
+  };
 
   return (
     <div>
@@ -234,9 +249,10 @@ const Home: React.FC = () => {
             loading = {isPending} 
             columns={columns} 
             dataSource={artists}
-            onChange={handleTableChange} 
             rowKey="id" 
-            />
+            pagination={pagination}
+            onChange={handleTableChange}
+          />
         </Col>
       </Row>
 

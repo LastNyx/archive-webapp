@@ -3,7 +3,7 @@ import type { SorterResult } from 'antd/lib/table/interface';
 
 export default interface queryParams {
   search?: string;
-  pagination?: TablePaginationConfig;
+  page?: number;
   sorter?: SorterResult<any> | SorterResult<any>[];
   total?: number;
   sortField?: string;
