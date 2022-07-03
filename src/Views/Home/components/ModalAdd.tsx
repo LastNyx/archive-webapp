@@ -26,7 +26,7 @@ const ModalAdd: React.FC<Props> = ({showModal,handleClose,addArtist}) => {
 
   const handleCancel = () => {
     handleClose();
-    console.log('Clicked ok');
+    form.resetFields()
   }
 
   return (
@@ -50,7 +50,7 @@ const ModalAdd: React.FC<Props> = ({showModal,handleClose,addArtist}) => {
             >
               <Input
                 placeholder="Artist Name"
-                autoComplete={"off"}
+                autoComplete={"newpassword"}
               />
             </Form.Item>
           </Col>

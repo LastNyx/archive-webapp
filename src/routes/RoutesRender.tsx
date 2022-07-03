@@ -1,14 +1,14 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Home from "../views/home/Home";
+import SetList from '../views/SetList/SetList';
 
 const RoutesRender: React.FC = () => {
   return (
     <Routes>
       <Route path='/'>
           <Route index element={<Home />} />
-          {/* <Route path='products' element={<Product />} />
-          <Route path='sellings' element={<Selling />} /> */}
+          <Route path=':name' element={<SetList />} />
       </Route>
       <Route
           path="*"

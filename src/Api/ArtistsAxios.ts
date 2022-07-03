@@ -10,10 +10,11 @@ export const axiosArtists = (queryParams:QueryParams) => {
   })
 }
 
-export const axiosArtist = (id:number) => {
+export const axiosArtist = (id:number, queryParams:QueryParams) => {
   return axios({
       method: 'GET',
       url: `artists/${id}`,
+      params: queryParams
   })
 }
 

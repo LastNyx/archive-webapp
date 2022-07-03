@@ -20,24 +20,24 @@ const navItems: MenuProps['items'] = [
       </NavLink>
     ),
   },
-  {
-    key: '/products',
-    icon: <DatabaseOutlined />,
-    label: (
-      <NavLink to='/products'>
-          Produk
-      </NavLink>
-    ),
-  },
-  {
-    key: '/sellings',
-    icon: <FileTextOutlined />,
-    label: (
-      <NavLink to='/sellings'>
-          Home
-      </NavLink>
-    ),
-  },
+  // {
+  //   key: '/products',
+  //   icon: <DatabaseOutlined />,
+  //   label: (
+  //     <NavLink to='/products'>
+  //         Produk
+  //     </NavLink>
+  //   ),
+  // },
+  // {
+  //   key: '/sellings',
+  //   icon: <FileTextOutlined />,
+  //   label: (
+  //     <NavLink to='/sellings'>
+  //         Home
+  //     </NavLink>
+  //   ),
+  // },
 ]
 
 type Props = {

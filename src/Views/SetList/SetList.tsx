@@ -1,5 +1,5 @@
 import { 
-  Table, 
+  Table,
   Row,
   Col,
   Button,
@@ -7,21 +7,25 @@ import {
   Space,
   Popconfirm,
   Breadcrumb,
-} from 'antd';
+  Image,
+  Avatar,
+} from 'antd'
+import { 
+  axiosArtist, 
+} from '../../Api/ArtistsAxios';
+import { 
+  axiosSetList,
+  axiosDeleteSetList,
+  axiosAddSetList,
+  axiosEditSetList, 
+} from '../../Api/SetListsAxios';
 import type { ColumnsType, TableProps } from 'antd/lib/table';
 import type { SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom'
-import { 
-  axiosArtists,
-  axiosArtist, 
-  axiosDeleteArtist,
-  axiosAddArtist,
-  axiosEditArtist,
-} from '../../Api/ArtistsAxios';
+import { Link, useParams, useSearchParams, } from 'react-router-dom'
 import { DateTime } from '../../utils/DateTime';
 import QueryParams from '../../Model/QueryParams';
-import ArtistDto from '../../Model/ArtistDto';
+import SetListDto from '../../Model/SetListDto';
 import ModalAdd from './components/ModalAdd';
 import ModalEdit from './components/ModalEdit';
 
@@ -30,8 +34,9 @@ type NotificationType = 'error'|'success'|'info'|'warning';
 interface DataType {
   key: React.Key;
   id: number;
-  name: string;
-  setlists_count: number;
+  title: string;
+  thumbnail: string;
+  store: string;
   updated_at: Date;
 };
 
@@ -41,27 +46,30 @@ const openNotification = (type: NotificationType, message: string) => {
   });
 };
 
-
 //Function Component
-const Home: React.FC = () => {
+const SetList = () => {
+
+  const { name } = useParams();
+  const [searchParams] = useSearchParams();
 
   //ModalState
   const [showModalAdd, setShowModalAdd] = useState(false);
   const [showModalEdit, setShowModalEdit] = useState(false);
 
   //APIState
+  const [postId, setPostId] = useState(searchParams.get('id'))
   const [loggedIn, setLoggedIn] = useState(true)
-  const [artists, setArtists] = useState()
   const [artist, setArtist] = useState()
-  const [isLoadingArtist, setIsLoadingArtist] = useState(false)
+  const [set, setSet] = useState()
+  const [isLoadingSet, setIsLoadingSet] = useState(false)
   const [isPending, setIsPending] = useState(true)
-  const [queryParams, setQueryParams] = useState({search: ''})
+  const [queryParams, setQueryParams] = useState({withSets: true})
 
-  const fetchData = (queryParams:QueryParams) => {
+  const fetchData = (id:number, queryParams:QueryParams) => {
     setIsPending(true)
-    axiosArtists(queryParams)
+    axiosArtist(id,queryParams)
       .then((res) => {
-          setArtists(res.data.data)
+          setArtist(res.data.data)
       })
       .catch((err) => {
         openNotification('error', err);
@@ -72,26 +80,26 @@ const Home: React.FC = () => {
   }
 
   const fetchOneData = (id:number) => {
-    setArtist(undefined)
-    setIsLoadingArtist(true)
-    axiosArtist(id, {})
+    setSet(undefined)
+    setIsLoadingSet(true)
+    axiosSetList(id, {})
     .then((res) => {
-        setArtist(res.data)
+        setSet(res.data)
     })
     .catch((err) => {
       openNotification('error', err);
     })
     .finally(() => {
-      setIsLoadingArtist(false)
+      setIsLoadingSet(false)
     })
   }
 
-  const addArtist = (body:ArtistDto) => {
+  const addSetList = (body:SetListDto) => {
     setIsPending(true);
-    axiosAddArtist(body)
+    axiosAddSetList(body)
       .then((res) => {
-        fetchData(queryParams)
-        openNotification('success', 'Artist added');
+        fetchData(Number(postId),queryParams)
+        openNotification('success', 'Set added');
       })
       .catch((err) => {
         openNotification('error', err);
@@ -99,12 +107,12 @@ const Home: React.FC = () => {
       })
   }
 
-  const editArtist = (id:number, body:ArtistDto) => {
+  const editArtist = (id:number, body:SetListDto) => {
     setIsPending(true);
-    axiosEditArtist(id, body)
+    axiosEditSetList(id, body)
       .then((res) => {
-        fetchData(queryParams)
-        openNotification('success', 'Artist updated');
+        fetchData(Number(postId),queryParams)
+        openNotification('success', 'Set updated');
       }
     )
     .catch((err) => {
@@ -115,20 +123,24 @@ const Home: React.FC = () => {
 
   const handleDelete = (id:number) => {
     setIsPending(true);
-    axiosDeleteArtist(id)
+    axiosDeleteSetList(id)
     .then((res) => {
-        console.log('deleted')
+      openNotification('success', 'Set deleted');
     })
     .catch((err) => {
       openNotification('error', err);
     })
     .finally(() => {
-        fetchData(queryParams)
+        fetchData(Number(postId),queryParams)
         setIsPending(false);
     })
   }
 
-  const handleEdit = (id:number) => {
+  useEffect(() => {
+    fetchData(Number(postId),queryParams);
+  }, [queryParams, postId]);
+
+  const handleEdit = (id: number) => {
     fetchOneData(id);
     setShowModalEdit(true);
   }
@@ -137,27 +149,25 @@ const Home: React.FC = () => {
     console.log(newPagination, sorter);
   };
 
-  useEffect(() => {
-    fetchData(queryParams);
-  }, [queryParams]);
-
   const columns: ColumnsType<DataType> = [
     {
-      title: 'Name',
-      dataIndex: 'name',
+      title: 'Thumbnail',
+      dataIndex: 'thumbnail',
+      width:'20%',
+      render: thumbnail => 
+      <Avatar shape="square" size={200} src={<Image src={thumbnail} style={{ width: 200 }} />} />
+    },
+    {
+      title: 'Title',
+      dataIndex: 'title',
       sorter: true,
       sortDirections: ['descend'],
       width:'40%',
       render: (_, record) => (
         <Space>
-          <Link to={`/${record.name}?id=${record.id}`}>{record.name}</Link>
+          <a href={`${record.store}`} target={"_blank"} rel="noreferrer">{record.title}</a>
         </Space>
       ),
-    },
-    {
-      title: 'Total Sets',
-      dataIndex: 'setlists_count',
-      width:'20%',
     },
     {
       title: 'Last Updated',
@@ -171,18 +181,18 @@ const Home: React.FC = () => {
         <Space size={'small'}>
           <Button
               type="primary"
-              disabled={isLoadingArtist}
-              onClick={!isLoadingArtist ? () => handleEdit(record.id) : undefined}
+              disabled={isLoadingSet}
+              onClick={!isLoadingSet ? () => handleEdit(record.id) : undefined}
               className = "me-2"
               >
               Edit
           </Button>
-          <Popconfirm title="You Sure?" onConfirm={() => handleDelete(record.id)}>
+          <Popconfirm title="Yakin Menghapus?" onConfirm={() => handleDelete(record.id)}>
               <Button
                   danger
                   disabled={isPending}
               >
-                  Delete
+                  Hapus
               </Button>
           </Popconfirm>
         </Space>
@@ -195,14 +205,19 @@ const Home: React.FC = () => {
       <Row className="mb-2">
         <Breadcrumb>
           <Breadcrumb.Item>
+            <Link to="/">
               Artists List
+            </Link>
+          </Breadcrumb.Item>
+          <Breadcrumb.Item>
+            {name}
           </Breadcrumb.Item>
         </Breadcrumb>
       </Row>
       {loggedIn && <Row justify="end">
         <Col md={4}>
           <div className="d-flex justify-content-end mb-2">
-            <Button type="primary" onClick={() => setShowModalAdd(true)}>Add</Button>
+            <Button type="primary" onClick={() => setShowModalAdd(true)}>Tambah</Button>
           </div>
         </Col>
       </Row>}
@@ -211,7 +226,7 @@ const Home: React.FC = () => {
           <Table 
             loading = {isPending} 
             columns={columns} 
-            dataSource={artists}
+            dataSource={artist}
             onChange={handleTableChange} 
             rowKey="id" />
         </Col>
@@ -220,16 +235,18 @@ const Home: React.FC = () => {
       <ModalAdd 
         showModal={showModalAdd} 
         handleClose={() => setShowModalAdd(false)}
-        addArtist={(body) => addArtist(body)}
+        addSetList={(body) => addSetList(body)}
+        artistsId={Number(postId)}
       ></ModalAdd>
-      {artist && <ModalEdit 
+      {set && <ModalEdit 
         showModal={showModalEdit} 
         handleClose={() => setShowModalEdit(false)}
-        artist={artist}
-        editArtist={(id, body) => editArtist(id, body)}
+        set={set}
+        editSetList={(id, body) => editArtist(id, body)}
+        artistsId={Number(postId)}
       ></ModalEdit>}
     </div>
-  );
+  )
 }
 
-export default Home;
+export default SetList;

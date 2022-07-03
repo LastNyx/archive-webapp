@@ -12,7 +12,7 @@ type Props = {
   showModal: boolean;
   handleClose: () => void;
   artist: any;
-  editArtist: (body:ArtistDto) => void;
+  editArtist: (id:number,body:ArtistDto) => void;
 }
 
 const ModalEdit: React.FC<Props> = ({showModal, handleClose, artist, editArtist}) => {
@@ -20,18 +20,16 @@ const ModalEdit: React.FC<Props> = ({showModal, handleClose, artist, editArtist}
   const [form] = Form.useForm();
 
   const handleOk = () => {
-    
-    console.log('Clicked ok');
+    editArtist(artist.id, form.getFieldsValue());
+    handleClose();
   }
 
   const handleCancel = () => {
     handleClose();
-    console.log('Clicked ok');
   }
 
   useEffect(() => {
     if(showModal){
-        // setProduct(product);
         form.setFieldsValue(artist)
     }
   },[artist,showModal,form]);
