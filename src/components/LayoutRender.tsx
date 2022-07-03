@@ -1,11 +1,8 @@
 import React from 'react';
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-} from '@ant-design/icons';
-import { Layout } from 'antd';
+import { Layout, Card } from 'antd';
 import { useState } from 'react';
-import NavSide from './NavSide';
+import NavHeader from './NavHeader';
+import NavBar from './NavBar';
 import RoutesRender from '../routes/RoutesRender';
 const { Header, Content, Footer} = Layout;
 
@@ -15,27 +12,21 @@ const LayoutRender: React.FC = () => {
 
   return (
     <Layout>
-      <NavSide collapsed={collapsed}/>
-      <Layout className="site-layout" style={{marginLeft: collapsed ? '5rem' : '12rem', transition:'all 0.2s'}}>
-        <Header className="site-layout-background" style={{ padding: 0 }}>
-          {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-            className: 'trigger',
-            onClick: () => { setCollapsed(!collapsed) },
-          })}
-        </Header>
-        <Content
-          className="site-layout-background"
-          style={{
-            margin: '24px 16px',
-            padding: 24,
-            overflow: 'initial',
-            height: '100vh',
-          }}
-        >
-          <RoutesRender></RoutesRender>
-        </Content>
-        <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
-      </Layout>
+      <NavBar />
+      <Content
+        className="site-layout-container container"
+        style={{
+          padding: '0 50px',
+          overflow: 'initial',
+          height: '100vh'
+        }}
+      >
+        <Card className="mt-3">
+          <p>You Can Scroll the Table Horizontally if You're on the Phone</p>
+        </Card>
+        <RoutesRender></RoutesRender>
+      </Content>
+      <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
     </Layout>
   )
 };

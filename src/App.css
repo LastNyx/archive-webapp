@@ -1,4 +1,6 @@
-@import '~antd/dist/antd.css';
+/* @import '~antd/dist/antd.css'; */
+@import '~antd/dist/antd.dark.css';
+/* @import '~antd/dist/antd.compact.css'; */
 
 * {
   margin: 0;
@@ -24,15 +26,35 @@ body{
 }
 
 .logo {
-  height: 32px;
-  margin: 16px;
-  color: white;
+  float: left;
+  width: 120px;
+  height: 31px;
+  margin: 16px 24px 16px 0;
+  display: flex;
+  align-items: center;
 }
 
 .site-layout .site-layout-background {
-  background: #fff;
+  background: #292b2c;
+}
+
+.site-layout-container{
+  background: #292b2c;
+  max-width: 50rem;
+  position: relative;
+  margin: 2rem auto !important;
 }
 
 .display-none{
   display: none;
 }
+
+.ant-table{
+  background: #292b2c;
+}
+
+.ant-layout-header{
+  padding: 0;
+  height: 64px;
+}
+

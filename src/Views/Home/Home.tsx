@@ -7,10 +7,12 @@ import {
   Space,
   Popconfirm,
   Breadcrumb,
+  Switch,
 } from 'antd';
-import type { ColumnsType, TableProps } from 'antd/lib/table';
+import type { ColumnsType} from 'antd/lib/table';
 import type { SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
 import React, { useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
 import { Link } from 'react-router-dom'
 import { 
   axiosArtists,
@@ -24,6 +26,7 @@ import QueryParams from '../../Model/QueryParams';
 import ArtistDto from '../../Model/ArtistDto';
 import ModalAdd from './components/ModalAdd';
 import ModalEdit from './components/ModalEdit';
+import Input from 'antd/lib/input/Input';
 
 type NotificationType = 'error'|'success'|'info'|'warning';
 
@@ -45,12 +48,15 @@ const openNotification = (type: NotificationType, message: string) => {
 //Function Component
 const Home: React.FC = () => {
 
+  const [cookies] = useCookies();
+
   //ModalState
   const [showModalAdd, setShowModalAdd] = useState(false);
   const [showModalEdit, setShowModalEdit] = useState(false);
+  const [showAction, setShowAction] = useState(false);
 
   //APIState
-  const [loggedIn, setLoggedIn] = useState(true)
+  const [loggedIn, setLoggedIn] = useState(false)
   const [artists, setArtists] = useState()
   const [artist, setArtist] = useState()
   const [isLoadingArtist, setIsLoadingArtist] = useState(false)
@@ -138,15 +144,20 @@ const Home: React.FC = () => {
   };
 
   useEffect(() => {
+    if(cookies.token){
+      setLoggedIn(true);
+      setShowAction(true);
+    }else{
+      setLoggedIn(false);
+      setShowAction(false);
+    }
     fetchData(queryParams);
-  }, [queryParams]);
+  }, [queryParams, cookies.token]);
 
   const columns: ColumnsType<DataType> = [
     {
       title: 'Name',
       dataIndex: 'name',
-      sorter: true,
-      sortDirections: ['descend'],
       width:'40%',
       render: (_, record) => (
         <Space>
@@ -164,7 +175,7 @@ const Home: React.FC = () => {
       dataIndex: 'updated_at',
       render: updated_at => <span>{DateTime(updated_at)}</span>
     },
-    loggedIn ? {
+    showAction ? {
       title: 'Action',
       width: '20%',
       render: (_, record) => (
@@ -192,28 +203,40 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      <Row className="mb-2">
-        <Breadcrumb>
-          <Breadcrumb.Item>
-              Artists List
-          </Breadcrumb.Item>
-        </Breadcrumb>
+      <Row className="mt-4 mb-4">
+        <Col md={12}>
+          <Breadcrumb>
+            <Breadcrumb.Item>
+                Artists List
+            </Breadcrumb.Item>
+          </Breadcrumb>
+        </Col>
+        <Col md={12}>
+          <Input
+            placeholder="Search"
+            onChange={(e) => setQueryParams({...queryParams, search: e.target.value})}
+          />
+        </Col>
       </Row>
       {loggedIn && <Row justify="end">
+        <Col md={20}>
+          <Switch checked={showAction} onChange={() => setShowAction(!showAction)}/> Toggle Action Column
+        </Col>
         <Col md={4}>
-          <div className="d-flex justify-content-end mb-2">
+          <div className="d-flex justify-content-end mb-3">
             <Button type="primary" onClick={() => setShowModalAdd(true)}>Add</Button>
           </div>
         </Col>
       </Row>}
-      <Row>
+      <Row className="overflow-auto mb-2">
         <Col span={24}>
           <Table 
             loading = {isPending} 
             columns={columns} 
             dataSource={artists}
             onChange={handleTableChange} 
-            rowKey="id" />
+            rowKey="id" 
+            />
         </Col>
       </Row>
 

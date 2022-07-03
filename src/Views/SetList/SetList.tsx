@@ -9,6 +9,8 @@ import {
   Breadcrumb,
   Image,
   Avatar,
+  Input,
+  Switch,
 } from 'antd'
 import { 
   axiosArtist, 
@@ -19,9 +21,10 @@ import {
   axiosAddSetList,
   axiosEditSetList, 
 } from '../../Api/SetListsAxios';
-import type { ColumnsType, TableProps } from 'antd/lib/table';
+import type { ColumnsType} from 'antd/lib/table';
 import type { SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
 import React, { useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
 import { Link, useParams, useSearchParams, } from 'react-router-dom'
 import { DateTime } from '../../utils/DateTime';
 import QueryParams from '../../Model/QueryParams';
@@ -51,19 +54,21 @@ const SetList = () => {
 
   const { name } = useParams();
   const [searchParams] = useSearchParams();
+  const [cookies] = useCookies();
 
   //ModalState
   const [showModalAdd, setShowModalAdd] = useState(false);
   const [showModalEdit, setShowModalEdit] = useState(false);
+  const [showAction, setShowAction] = useState(false);
 
   //APIState
-  const [postId, setPostId] = useState(searchParams.get('id'))
-  const [loggedIn, setLoggedIn] = useState(true)
+  const [postId] = useState(searchParams.get('id'))
+  const [loggedIn, setLoggedIn] = useState(false)
   const [artist, setArtist] = useState()
   const [set, setSet] = useState()
   const [isLoadingSet, setIsLoadingSet] = useState(false)
   const [isPending, setIsPending] = useState(true)
-  const [queryParams, setQueryParams] = useState({withSets: true})
+  const [queryParams, setQueryParams] = useState({withSets: true, search: ''})
 
   const fetchData = (id:number, queryParams:QueryParams) => {
     setIsPending(true)
@@ -137,8 +142,15 @@ const SetList = () => {
   }
 
   useEffect(() => {
+    if(cookies.token){
+      setLoggedIn(true);
+      setShowAction(true);
+    }else{
+      setLoggedIn(false);
+      setShowAction(false);
+    }
     fetchData(Number(postId),queryParams);
-  }, [queryParams, postId]);
+  }, [queryParams, postId, cookies.token]);
 
   const handleEdit = (id: number) => {
     fetchOneData(id);
@@ -155,7 +167,7 @@ const SetList = () => {
       dataIndex: 'thumbnail',
       width:'20%',
       render: thumbnail => 
-      <Avatar shape="square" size={200} src={<Image src={thumbnail} style={{ width: 200 }} />} />
+      <Avatar shape="square" size={175} src={<Image src={thumbnail} style={{ width: 175 }} />} />
     },
     {
       title: 'Title',
@@ -174,7 +186,7 @@ const SetList = () => {
       dataIndex: 'updated_at',
       render: updated_at => <span>{DateTime(updated_at)}</span>
     },
-    loggedIn ? {
+    showAction ? {
       title: 'Action',
       width: '20%',
       render: (_, record) => (
@@ -202,26 +214,37 @@ const SetList = () => {
 
   return (
     <div>
-      <Row className="mb-2">
-        <Breadcrumb>
-          <Breadcrumb.Item>
-            <Link to="/">
-              Artists List
-            </Link>
-          </Breadcrumb.Item>
-          <Breadcrumb.Item>
-            {name}
-          </Breadcrumb.Item>
-        </Breadcrumb>
+      <Row className="mt-4 mb-4">
+        <Col md={12}>
+          <Breadcrumb>
+            <Breadcrumb.Item>
+              <Link to="/">
+                Artists List
+              </Link>
+            </Breadcrumb.Item>
+            <Breadcrumb.Item>
+              {name}
+            </Breadcrumb.Item>
+          </Breadcrumb>
+        </Col>
+        <Col md={12}>
+          <Input
+            placeholder="Search"
+            onChange={(e) => setQueryParams({...queryParams, search: e.target.value})}
+          />
+        </Col>
       </Row>
       {loggedIn && <Row justify="end">
+        <Col md={20}>
+          <Switch checked={showAction} onChange={() => setShowAction(!showAction)}/> Toggle Action Column
+        </Col>
         <Col md={4}>
-          <div className="d-flex justify-content-end mb-2">
-            <Button type="primary" onClick={() => setShowModalAdd(true)}>Tambah</Button>
+          <div className="d-flex justify-content-end mb-3">
+            <Button type="primary" onClick={() => setShowModalAdd(true)}>Add</Button>
           </div>
         </Col>
       </Row>}
-      <Row>
+      <Row className="overflow-auto mb-2">
         <Col span={24}>
           <Table 
             loading = {isPending} 
