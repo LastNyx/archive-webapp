@@ -85,12 +85,12 @@ const NavBar = () => {
             <li className="nav-item">
               <Link className="nav-link" to="/">Home</Link>
             </li>
+            <li className="nav-item">
+              <a className="nav-link" href="https://pipiusagi.com/" target="_blank" rel="noreferrer">Pipi Usagi Main Page</a>
+            </li>
           </ul>
           {!loggedIn && <div className="d-flex">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-              <li className="nav-item">
-                <a className="nav-link" onClick={() => setShowModalRegister(true)}>Register</a>
-              </li>
               <li className="nav-item">
                 <a className="nav-link" onClick={() => setShowModalLogin(true)}>Login</a>
               </li>
@@ -99,10 +99,14 @@ const NavBar = () => {
           {loggedIn && <div className="d-flex">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
+                <a className="nav-link" onClick={() => setShowModalRegister(true)}>Register</a>
+              </li>
+              <li className="nav-item">
                 <a className="nav-link" onClick={() => handleLogout(cookies.token)}>Logout</a>
               </li>
             </ul>
-          </div>}
+          </div>
+          }
         </div>
       </div>
       <Login 

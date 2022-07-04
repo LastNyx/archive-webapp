@@ -82,7 +82,7 @@ const Home: React.FC = () => {
           setPagination({total: res.data.total, current: res.data.current_page, pageSize: res.data.per_page})
       })
       .catch((err) => {
-        openNotification('error', err);
+        openNotification('error', err.message);
       })
       .finally(() => {
           setIsPending(false)

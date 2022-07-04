@@ -209,12 +209,12 @@ const SetList = () => {
               >
               Edit
           </Button>
-          <Popconfirm title="Yakin Menghapus?" onConfirm={() => handleDelete(record.id)}>
+          <Popconfirm title="You Sure?" onConfirm={() => handleDelete(record.id)}>
               <Button
                   danger
                   disabled={isPending}
               >
-                  Hapus
+                  Delete
               </Button>
           </Popconfirm>
         </Space>
@@ -262,7 +262,8 @@ const SetList = () => {
             dataSource={artist}
             pagination={pagination}
             onChange={handleTableChange}
-            rowKey="id" />
+            rowKey="id" 
+          />
         </Col>
       </Row>
 

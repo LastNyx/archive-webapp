@@ -25,7 +25,7 @@ const LayoutRender: React.FC = () => {
         </Card>
         <RoutesRender></RoutesRender>
       </Content>
-      <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
+      <Footer style={{ textAlign: 'center' }}>Pipi Usagi ©2022 Created by <a href="http://asiangirlsaddict.xyz/" target="_blank" rel="noreferrer">Cosukin</a></Footer>
     </Layout>
   )
 };
