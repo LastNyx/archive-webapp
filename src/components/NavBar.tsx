@@ -86,6 +86,9 @@ const NavBar = () => {
               <Link className="nav-link" to="/">Home</Link>
             </li>
             <li className="nav-item">
+              <Link className="nav-link" to="/all">Recent Sets</Link>
+            </li>
+            <li className="nav-item">
               <a className="nav-link" href="https://pipiusagi.com/" target="_blank" rel="noreferrer">Pipi Usagi Main Page</a>
             </li>
           </ul>

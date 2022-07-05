@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Home from "../views/home/Home";
+import SetListAll from '../views/RecentSets/SetListAll';
 import SetList from '../views/SetList/SetList';
 
 const RoutesRender: React.FC = () => {
@@ -9,6 +10,7 @@ const RoutesRender: React.FC = () => {
       <Route path='/'>
           <Route index element={<Home />} />
           <Route path=':name' element={<SetList />} />
+          <Route path='all' element={<SetListAll />} />
       </Route>
       <Route
           path="*"

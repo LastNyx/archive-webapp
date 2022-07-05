@@ -1,5 +1,5 @@
 import { 
-  Table, 
+  Table,
   Row,
   Col,
   Button,
@@ -7,42 +7,41 @@ import {
   Space,
   Popconfirm,
   Breadcrumb,
+  Image,
+  Avatar,
+  Input,
   Switch,
-} from 'antd';
-import type { ColumnsType, TablePaginationConfig} from 'antd/lib/table';
-import type { SorterResult } from 'antd/lib/table/interface';
+  Tooltip,
+} from 'antd'
+import { 
+  axiosSetLists,
+  axiosSetList,
+  axiosDeleteSetList,
+  axiosAddSetList,
+  axiosEditSetList, 
+} from '../../Api/SetListsAxios';
+import type { ColumnsType} from 'antd/lib/table';
+import type { SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
 import React, { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
-import { Link } from 'react-router-dom'
-import { 
-  axiosArtists,
-  axiosArtist, 
-  axiosDeleteArtist,
-  axiosAddArtist,
-  axiosEditArtist,
-} from '../../Api/ArtistsAxios';
+import { Link, useParams, useSearchParams, } from 'react-router-dom'
 import { DateTime } from '../../utils/DateTime';
 import QueryParams from '../../Model/QueryParams';
-import ArtistDto from '../../Model/ArtistDto';
-import ModalAdd from './components/ModalAdd';
+import SetListDto from '../../Model/SetListDto';
 import ModalEdit from './components/ModalEdit';
-import Input from 'antd/lib/input/Input';
 
 type NotificationType = 'error'|'success'|'info'|'warning';
 
 interface DataType {
   key: React.Key;
   id: number;
-  name: string;
-  setlists_count: number;
-  setlists: setList[];
-};
-
-interface setList {
-  id: number;
   title: string;
-  artists_id: number;
-}
+  thumbnail: string;
+  store: string;
+  updated_at: Date;
+  artists: any;
+  artists_id: any;
+};
 
 const openNotification = (type: NotificationType, message: string) => {
   notification[type]({
@@ -50,10 +49,11 @@ const openNotification = (type: NotificationType, message: string) => {
   });
 };
 
-
 //Function Component
-const Home: React.FC = () => {
+const SetListAll = () => {
 
+  const { name } = useParams();
+  const [searchParams] = useSearchParams();
   const [cookies] = useCookies();
 
   //ModalState
@@ -62,12 +62,13 @@ const Home: React.FC = () => {
   const [showAction, setShowAction] = useState(false);
 
   //APIState
+  const [postId, setPostId] = useState('8')
   const [loggedIn, setLoggedIn] = useState(false)
-  const [artists, setArtists] = useState()
   const [artist, setArtist] = useState()
-  const [isLoadingArtist, setIsLoadingArtist] = useState(false)
+  const [set, setSet] = useState()
+  const [isLoadingSet, setIsLoadingSet] = useState(false)
   const [isPending, setIsPending] = useState(true)
-  const [queryParams, setQueryParams] = useState({search: ''})
+  const [queryParams, setQueryParams] = useState({withSets: true, search: ''})
 
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     current: 1,
@@ -76,9 +77,9 @@ const Home: React.FC = () => {
 
   const fetchData = (queryParams:QueryParams) => {
     setIsPending(true)
-    axiosArtists(queryParams)
+    axiosSetLists(queryParams)
       .then((res) => {
-          setArtists(res.data.data)
+          setArtist(res.data.data)
           setPagination({total: res.data.total, current: res.data.current_page, pageSize: res.data.per_page})
       })
       .catch((err) => {
@@ -90,26 +91,27 @@ const Home: React.FC = () => {
   }
 
   const fetchOneData = (id:number) => {
-    setArtist(undefined)
-    setIsLoadingArtist(true)
-    axiosArtist(id, {})
+    setSet(undefined)
+    setIsLoadingSet(true)
+    axiosSetList(id, {})
     .then((res) => {
-        setArtist(res.data)
+        setSet(res.data)
+        setPostId(res.data.artists_id)
     })
     .catch((err) => {
-      openNotification('error', err);
+      openNotification('error', err.message);
     })
     .finally(() => {
-      setIsLoadingArtist(false)
+      setIsLoadingSet(false)
     })
   }
 
-  const addArtist = (body:ArtistDto) => {
+  const addSetList = (body:SetListDto) => {
     setIsPending(true);
-    axiosAddArtist(cookies.token,body)
+    axiosAddSetList(cookies.token, body)
       .then((res) => {
         fetchData(queryParams)
-        openNotification('success', 'Artist added');
+        openNotification('success', 'Set added');
       })
       .catch((err) => {
         openNotification('error', err);
@@ -117,25 +119,25 @@ const Home: React.FC = () => {
       })
   }
 
-  const editArtist = (id:number, body:ArtistDto) => {
+  const editArtist = (id:number, body:SetListDto) => {
     setIsPending(true);
-    axiosEditArtist(cookies.token,id, body)
+    axiosEditSetList(cookies.token, id, body)
       .then((res) => {
         fetchData(queryParams)
-        openNotification('success', 'Artist updated');
+        openNotification('success', 'Set updated');
       }
     )
     .catch((err) => {
-      openNotification('error', err);
+      openNotification('error', err.message);
       setIsPending(false);
     })
   }
 
   const handleDelete = (id:number) => {
     setIsPending(true);
-    axiosDeleteArtist(cookies.token,id)
+    axiosDeleteSetList(cookies.token, id)
     .then((res) => {
-        console.log('deleted')
+      openNotification('success', 'Set deleted');
     })
     .catch((err) => {
       openNotification('error', err);
@@ -144,11 +146,6 @@ const Home: React.FC = () => {
         fetchData(queryParams)
         setIsPending(false);
     })
-  }
-
-  const handleEdit = (id:number) => {
-    fetchOneData(id);
-    setShowModalEdit(true);
   }
 
   useEffect(() => {
@@ -159,28 +156,54 @@ const Home: React.FC = () => {
       setShowAction(false);
     }
     fetchData(queryParams);
-  }, [queryParams, cookies.token]);
+  }, [queryParams, postId, cookies.token]);
+
+  const handleEdit = (id: number) => {
+    fetchOneData(id);
+    setShowModalEdit(true);
+  }
+
+  const handleTableChange = (
+    newPagination: TablePaginationConfig,
+  ) => {
+    fetchData({
+      ...queryParams,
+      page: newPagination.current,
+    });
+  };
 
   const columns: ColumnsType<DataType> = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      width:'40%',
+      title: 'Thumbnail',
+      dataIndex: 'thumbnail',
+      width:'20%',
+      render: thumbnail => 
+      <Avatar shape="square" size={175} src={<Image src={thumbnail} style={{ width: 175 }} />} />
+    },
+    {
+      title: 'Title',
+      dataIndex: 'title',
+      width:'30%',
       render: (_, record) => (
         <Space>
-          <Link to={`/${record.name}?id=${record.id}`}>{record.name}</Link>
+          <a href={`${record.store}`} target={"_blank"} rel="noreferrer">{record.title}</a>
         </Space>
       ),
     },
     {
-      title: 'Total Sets',
-      dataIndex: 'setlists_count',
-      width:'20%',
+      title: 'Content Creator',
+      width:'10%',
+      render: (_, record) => (
+        <Space>
+          <Link to={`/${record.artists.name}?id=${record.artists_id}`}>{record.artists.name}</Link>
+        </Space>
+      ),
     },
     {
       title: 'Last Updated',
-      dataIndex: ['setlists', '0', 'updated_at'],
-      render: (setlists) => setlists? <span>{DateTime(setlists)}</span>: <span>-</span>,
+      dataIndex: 'updated_at',
+      width:'40%',
+      render: updated_at => <span>{DateTime(updated_at)}</span>
     },
     showAction ? {
       title: 'Action',
@@ -189,8 +212,8 @@ const Home: React.FC = () => {
         <Space size={'small'}>
           <Button
               type="primary"
-              disabled={isLoadingArtist}
-              onClick={!isLoadingArtist ? () => handleEdit(record.id) : undefined}
+              disabled={isLoadingSet}
+              onClick={!isLoadingSet ? () => handleEdit(record.id) : undefined}
               className = "me-2"
               >
               Edit
@@ -208,21 +231,15 @@ const Home: React.FC = () => {
     } : { width: 0, },
   ];
 
-  const handleTableChange = (
-    newPagination: TablePaginationConfig,
-  ) => {
-    fetchData({
-      page: newPagination.current,
-    });
-  };
-
   return (
     <div>
       <Row className="mt-4 mb-4">
         <Col md={12}>
           <Breadcrumb>
             <Breadcrumb.Item>
-                Content Creator List
+              <Link to="/all">
+                Recent Sets List
+              </Link>
             </Breadcrumb.Item>
           </Breadcrumb>
         </Col>
@@ -239,7 +256,9 @@ const Home: React.FC = () => {
         </Col>
         <Col md={4}>
           <div className="d-flex justify-content-end mb-3">
-            <Button type="primary" onClick={() => setShowModalAdd(true)}>Add</Button>
+            <Tooltip placement="top" title="Please Add From Content Creator Page">
+              <Button type="primary" onClick={() => setShowModalAdd(true)} disabled>Add</Button>
+            </Tooltip>
           </div>
         </Col>
       </Row>}
@@ -248,27 +267,23 @@ const Home: React.FC = () => {
           <Table 
             loading = {isPending} 
             columns={columns} 
-            dataSource={artists}
-            rowKey="id" 
+            dataSource={artist}
             pagination={pagination}
             onChange={handleTableChange}
+            rowKey="id" 
           />
         </Col>
       </Row>
 
-      <ModalAdd 
-        showModal={showModalAdd} 
-        handleClose={() => setShowModalAdd(false)}
-        addArtist={(body) => addArtist(body)}
-      ></ModalAdd>
-      {artist && <ModalEdit 
+      {set && <ModalEdit 
         showModal={showModalEdit} 
         handleClose={() => setShowModalEdit(false)}
-        artist={artist}
-        editArtist={(id, body) => editArtist(id, body)}
+        set={set}
+        editSetList={(id, body) => editArtist(id, body)}
+        artistsId={Number(postId)}
       ></ModalEdit>}
     </div>
-  );
+  )
 }
 
-export default Home;
+export default SetListAll;

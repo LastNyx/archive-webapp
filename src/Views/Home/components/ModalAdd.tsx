@@ -31,7 +31,7 @@ const ModalAdd: React.FC<Props> = ({showModal,handleClose,addArtist}) => {
 
   return (
     <Modal
-      title="Add Artist" 
+      title="Add Content Crearot" 
       visible={showModal} 
       onOk={handleOk} 
       onCancel={handleCancel}
@@ -45,11 +45,11 @@ const ModalAdd: React.FC<Props> = ({showModal,handleClose,addArtist}) => {
         <Row>
           <Col md={24}>
             <Form.Item
-              label="Artist Name"
+              label="Content Creator Name"
               name="name"
             >
               <Input
-                placeholder="Artist Name"
+                placeholder="Content Creator Name"
                 autoComplete={"newpassword"}
               />
             </Form.Item>

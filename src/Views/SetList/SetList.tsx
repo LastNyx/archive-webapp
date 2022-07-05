@@ -107,7 +107,7 @@ const SetList = () => {
 
   const addSetList = (body:SetListDto) => {
     setIsPending(true);
-    axiosAddSetList(body)
+    axiosAddSetList(cookies.token, body)
       .then((res) => {
         fetchData(Number(postId),queryParams)
         openNotification('success', 'Set added');
@@ -120,7 +120,7 @@ const SetList = () => {
 
   const editArtist = (id:number, body:SetListDto) => {
     setIsPending(true);
-    axiosEditSetList(id, body)
+    axiosEditSetList(cookies.token, id, body)
       .then((res) => {
         fetchData(Number(postId),queryParams)
         openNotification('success', 'Set updated');
@@ -134,7 +134,7 @@ const SetList = () => {
 
   const handleDelete = (id:number) => {
     setIsPending(true);
-    axiosDeleteSetList(id)
+    axiosDeleteSetList(cookies.token, id)
     .then((res) => {
       openNotification('success', 'Set deleted');
     })
@@ -229,7 +229,7 @@ const SetList = () => {
           <Breadcrumb>
             <Breadcrumb.Item>
               <Link to="/">
-                Artists List
+                Content Creator List
               </Link>
             </Breadcrumb.Item>
             <Breadcrumb.Item>

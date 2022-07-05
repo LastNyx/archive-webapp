@@ -18,25 +18,28 @@ export const axiosArtist = (id:number, queryParams:QueryParams) => {
   })
 }
 
-export const axiosAddArtist = (body:ArtistDto) => {
+export const axiosAddArtist = (token:string, body:ArtistDto) => {
   return axios({
       method: 'POST',
       url: `artists`,
       data: body,
+      headers: { Authorization: `Bearer ${token}` }
   })
 }
 
-export const axiosEditArtist = (id:number,body:ArtistDto) => {
+export const axiosEditArtist = (token:string, id:number,body:ArtistDto) => {
   return axios({
       method: 'PUT',
       url: `artists/${id}`,
       data: body,
+      headers: { Authorization: `Bearer ${token}` }
   })
 }
 
-export const axiosDeleteArtist = (id:number) => {
+export const axiosDeleteArtist = (token:string, id:number) => {
   return axios({
       method: 'DELETE',
       url: `artists/${id}`,
+      headers: { Authorization: `Bearer ${token}` }
   })
 }

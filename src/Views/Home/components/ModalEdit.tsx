@@ -36,7 +36,7 @@ const ModalEdit: React.FC<Props> = ({showModal, handleClose, artist, editArtist}
 
   return (
     <Modal
-      title="Edit Artist" 
+      title="Edit Content Creator" 
       visible={showModal} 
       onOk={handleOk} 
       onCancel={handleCancel}
@@ -50,11 +50,11 @@ const ModalEdit: React.FC<Props> = ({showModal, handleClose, artist, editArtist}
         <Row>
           <Col md={24}>
             <Form.Item
-              label="Artist Name"
+              label="Content Creator Name"
               name="name"
             >
               <Input
-                placeholder="Artist Name"
+                placeholder="Content Creator Name"
                 autoComplete="off"
               />
             </Form.Item>
