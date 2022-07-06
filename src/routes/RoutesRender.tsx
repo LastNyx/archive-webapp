@@ -1,8 +1,8 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Home from "../views/home/Home";
-import SetListAll from '../views/RecentSets/SetListAll';
-import SetList from '../views/SetList/SetList';
+import Home from "../Views/home/Home";
+import SetListAll from '../Views/RecentSets/SetListAll';
+import SetList from '../Views/SetList/SetList';
 
 const RoutesRender: React.FC = () => {
   return (
