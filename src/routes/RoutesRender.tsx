@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Home from "../Views/home/Home";
+import Home from "../Views/Home/Home";
 import SetListAll from '../Views/RecentSets/SetListAll';
 import SetList from '../Views/SetList/SetList';
 
